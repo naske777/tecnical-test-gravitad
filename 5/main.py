@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from sklearn import svm
 from sklearn.datasets import make_blobs
 from sklearn.metrics import classification_report, confusion_matrix
+import matplotlib
 
 # Generar un conjunto de datos sintéticos
 print("Generando un conjunto de datos sintéticos...")
@@ -15,6 +16,9 @@ X_train = X[:200]
 X_test = X[200:]
 print(f"Datos de entrenamiento: {X_train.shape[0]} muestras.")
 print(f"Datos de prueba: {X_test.shape[0]} muestras.")
+
+# Genera algunas anomalías regulares
+X_outliers = np.random.uniform(low=-4, high=4, size=(20, 2))
 
 # Entrenar un modelo One-Class SVM
 print("Entrenando el modelo One-Class SVM...")
@@ -52,18 +56,25 @@ print(confusion_matrix(y_true_test, y_pred_test))
 
 # Visualizar los resultados
 print("Visualizando los resultados...")
-plt.title("Detección de Anomalías usando One-Class SVM")
-plt.scatter(X_train[:, 0], X_train[:, 1], c='white', s=20, edgecolor='k', label="Datos de Entrenamiento")
-plt.scatter(X_test[:, 0], X_test[:, 1], c='blue', s=20, edgecolor='k', label="Datos de Prueba")
-
-# Dibujar el límite de decisión
-print("Dibujando el límite de decisión...")
+plt.title("Detección de anomalías con One-Class SVM")
 xx, yy = np.meshgrid(np.linspace(-5, 5, 500), np.linspace(-5, 5, 500))
 Z = clf.decision_function(np.c_[xx.ravel(), yy.ravel()])
 Z = Z.reshape(xx.shape)
-plt.contour(xx, yy, Z, levels=[0], linewidths=2, colors='red')
 
-plt.legend()
-# Guardar la visualización en un archivo de imagen
+plt.contourf(xx, yy, Z, levels=np.linspace(Z.min(), 0, 7), cmap=plt.cm.PuBu)
+a = plt.contour(xx, yy, Z, levels=[0], linewidths=2, colors='darkred')
+plt.contourf(xx, yy, Z, levels=[0, Z.max()], colors='palevioletred')
+
+s = 40
+b1 = plt.scatter(X_train[:, 0], X_train[:, 1], c='white', s=s, edgecolors='k')
+b2 = plt.scatter(X_outliers[:, 0], X_outliers[:, 1], c='blueviolet', s=s, edgecolors='k')
+plt.axis('tight')
+plt.xlim((-5, 5))
+plt.ylim((-5, 5))
+plt.legend([a.collections[0], b1, b2],
+           ["superficie de decisión", "observaciones de entrenamiento",
+            "anomalías"],
+           loc="upper left",
+           prop=matplotlib.font_manager.FontProperties(size=11))
 plt.savefig("one_class_svm_anomalies.png")
 print("Visualización guardada en 'one_class_svm_anomalies.png'.")
