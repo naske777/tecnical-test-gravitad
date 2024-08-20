@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import svm
 from sklearn.datasets import make_blobs
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import classification_report
 import matplotlib
 
 # Generar un conjunto de datos sintéticos
